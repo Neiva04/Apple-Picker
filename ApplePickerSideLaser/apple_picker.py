@@ -1,3 +1,4 @@
+# Joseph Samuel Neiva, Roberto Santana Santos
 import random
 import pygame
 
@@ -115,37 +116,27 @@ class WorldModel:
 # of the world. This is where you decide what action you take
 class Agent:
     def __init__(self, wm, max_lever_displacement, arena_width):
-        self.worldmodel = wm
+        self.worlmodel = wm
         self.max_lever_displacement = max_lever_displacement 
         self.arena_width = arena_width
+        self.direction = 1  # 1 for right, -1 for left
 
-    def follow_queue(self, current_pos, apples):
-        if not self.worldmodel.queue:
-            return current_pos
-
-        # Obter a próxima posição-alvo da fila (sem desenfileirar)
-        target_pos = self.worldmodel.queue[0]
-
-        # Calcular a direção para se mover
-        direction = 1 if target_pos > current_pos else -1
-
-        # Calcular a nova posição
-        new_pos = current_pos + direction * self.max_lever_displacement
-
-        # Se o lever alcançou o alvo, desenfileire-o
-        if (direction == 1 and new_pos >= target_pos) or (direction == -1 and new_pos <= target_pos):
-            self.worldmodel.queue.popleft()
-
+    def eternal_movement(self, current_pos):
+        # Calculate the new position
+        new_pos = current_pos + self.direction * self.max_lever_displacement
+        
+        # Check for borders
+        if new_pos <= 0:  # Left border
+            new_pos = 0
+            self.direction = 1  # Change direction to right
+        elif new_pos >= self.arena_width - lever_width:  # Right border
+            new_pos = self.arena_width - lever_width
+            self.direction = -1  # Change direction to left
+        
         return new_pos
 
     def decision(self, lever_pos, laser_scan, side_laser_scan, score):
-        # Enqueue the apple if detected by the side laser
-        if side_laser_scan and side_laser_scan["color"] == "green":
-            closest_s_apple = find_apple_in_side_laser_range(wall_laser_y, apples)
-            if closest_s_apple:
-                self.worldmodel.enqueue_apple(closest_s_apple)
-        
-        # If there's a green apple in the laser range, move towards it
+         # If there's a green apple in the laser range, move towards it
         if laser_scan and laser_scan["color"] == "green":
             apple_x_position = closest_apple[0]
             if apple_x_position > lever_pos + lever_width/2:
@@ -153,9 +144,9 @@ class Agent:
             elif apple_x_position < lever_pos + lever_width/2:
                 return max(lever_pos - self.max_lever_displacement, 0)
         
-        # If no green apple in the laser range, follow the queue
-        return self.follow_queue(lever_pos, apples)
-
+        # For now, just use the eternal_movement method to decide the lever's position
+        desired_lever_pos = self.eternal_movement(lever_pos)
+        return desired_lever_pos
 
 
 ########################################################################
