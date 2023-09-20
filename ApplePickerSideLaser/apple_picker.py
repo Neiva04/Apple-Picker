@@ -132,7 +132,7 @@ class Agent:
         # Calcular a nova posição
         new_pos = current_pos + direction * self.max_lever_displacement
 
-        # Se Raimundo alcançou o alvo, desenfileire-o
+        # Se o lever alcançou o alvo, desenfileire-o
         if (direction == 1 and new_pos >= target_pos) or (direction == -1 and new_pos <= target_pos):
             self.worldmodel.queue.popleft()
 
